@@ -35,3 +35,6 @@ if build_client
     install_dir: get_option('sbindir'),
   )
 endif
+
+summary({'kresc': build_client,
+        }, section: 'Optional components', bool_yn: true)

@@ -24,8 +24,10 @@ if build_utils
     install_dir: get_option('sbindir'),
   )
 
-integr_tests += [
-  ['gc_cache_overflow', meson.current_source_dir() / 'test.integr'],
-]
-
+  integr_tests += [
+    ['gc_cache_overflow', meson.current_source_dir() / 'test.integr'],
+  ]
 endif
+
+summary({'kres-cache-gc': build_utils,
+        }, section: 'Optional components', bool_yn: true)

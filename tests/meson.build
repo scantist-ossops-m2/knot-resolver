@@ -59,3 +59,9 @@ if build_extra_tests
   endforeach
   message('--------------------------------')
 endif
+
+
+summary({'unit tests': build_unit_tests,
+         'config tests': build_config_tests,
+         'extra tests': build_extra_tests,
+        }, section: 'Tests built', bool_yn: true)

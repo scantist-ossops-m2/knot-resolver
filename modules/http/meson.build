@@ -59,3 +59,6 @@ if openssl.found()
     ],
   )
 endif
+
+summary({'openssl debug lib': openssl.found(),
+        }, section: 'Optional components', bool_yn: true)
