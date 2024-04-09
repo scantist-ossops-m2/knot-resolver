@@ -248,35 +248,6 @@ if _prometheus_support:
                 interval=config.monitoring.graphite.interval.seconds(), prefix=str(config.monitoring.graphite.prefix)
             )
 
-    # def _report_prometheus(stats_raw: "Optional[Dict[KresID, object]]") -> Generator[Metric, None, None]:
-
-    #     # if we have no data, return metrics with information about it and exit
-    #     if stats_raw is None:
-    #         for kresid in get_registered_workers_kresids():
-    #             yield _create_resolver_metrics_loaded_gauge(kresid, False)
-    #         return
-
-    #     # if we have data, parse them
-    #     for kresid in get_registered_workers_kresids():
-    #         success = False
-    #         try:
-    #             if kresid in stats_raw:
-    #                 metrics = stats_raw[kresid]
-    #                 yield from _parse_resolver_metrics(kresid, metrics)
-    #                 success = True
-    #         except json.JSONDecodeError:
-    #             logger.warning(
-    #                 "Failed to load metrics from resolver instance %s: failed to parse statistics", str(kresid)
-    #             )
-    #         except KeyError as e:
-    #             logger.warning(
-    #                 "Failed to load metrics from resolver instance %s: attempted to read missing statistic %s",
-    #                 str(kresid),
-    #                 str(e),
-    #             )
-
-    #         yield _create_resolver_metrics_loaded_gauge(kresid, success)
-
 
 class ResolverCollector:
     def __init__(self, config_store: ConfigStore) -> None:
@@ -287,16 +258,7 @@ class ResolverCollector:
 
     if _prometheus_support:
 
-        def report_prometheus(self) -> bytes:
-            # check for prometheus_client module support
-            assert _prometheus_support
-
-            return exposition.generate_latest()  # type: ignore
-
         def collect(self) -> Generator[Metric, None, None]:
-            # check for prometheus_client module support
-            assert _prometheus_support
-
             # schedule new stats collection
             self._trigger_stats_collection()
 
@@ -423,9 +385,9 @@ async def report_stats(prometheus_format: bool = False) -> Optional[bytes]:
         raise RuntimeError("Function invoked before initializing the module!")
 
     if prometheus_format:
-        if not _prometheus_support:
-            return None
-        return _resolver_collector.report_prometheus()
+        if _prometheus_support:
+            return exposition.generate_latest()  # type: ignore
+        return None
     return _resolver_collector.report_json().encode()
 
 
