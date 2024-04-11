@@ -3,8 +3,6 @@
 
 source "$(dirname "${0}")/ci-env.sh"
 
-export DOCKER_BUILDKIT=1 # Enables using secrets in docker-build
-
 exit_code=0
 for dockerfile in ${dockerfiles[@]}; do
 	for knot_branch in ${knot_branches["$dockerfile"]}; do
