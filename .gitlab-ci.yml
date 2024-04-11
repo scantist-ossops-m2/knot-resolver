@@ -308,10 +308,10 @@ kres-gen-31:
   image: $AUTO_IMAGE_PREFIX/debian10-knot_3_1:$IMAGE_TAG
 kres-gen-32:
   <<: *kres-gen
-  image: $AUTO_IMAGE_PREFIX/debian10-knot_3_2:$IMAGE_TAG
+  image: $AUTO_IMAGE_PREFIX/debian12-knot_3_2:$IMAGE_TAG
 kres-gen-33:
   <<: *kres-gen
-  image: $AUTO_IMAGE_PREFIX/debian10-knot_3_3:$IMAGE_TAG
+  image: $AUTO_IMAGE_PREFIX/debian12-knot_3_3:$IMAGE_TAG
 
 root.hints:
   <<: *sanity
