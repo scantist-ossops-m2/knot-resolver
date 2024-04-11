@@ -309,9 +309,6 @@ kres-gen-31:
 kres-gen-32:
   <<: *kres-gen
   image: $AUTO_IMAGE_PREFIX/debian12-knot_3_2:$IMAGE_TAG
-kres-gen-33:
-  <<: *kres-gen
-  image: $AUTO_IMAGE_PREFIX/debian12-knot_3_3:$IMAGE_TAG
 
 root.hints:
   <<: *sanity
@@ -786,9 +783,10 @@ packaging:fedora_32:
 # docs: {{{
 
 docs:build:
-  image: $CI_REGISTRY/packaging/apkg/lxc/fedora-36
   stage: deploy
-  needs: []
+  image: $DEFAULT_IMAGE
+  needs:
+    - ci-images
   script:
     - git submodule update --init --recursive
     - apkg build-dep -y
