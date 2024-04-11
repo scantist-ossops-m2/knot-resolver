@@ -1,9 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-FROM debian:buster
+FROM debian:bullseye
 MAINTAINER Knot Resolver <knot-resolver@labs.nic.cz>
 # >= 3.0 needed because of --enable-xdp=yes
-ARG KNOT_BRANCH=3.0
+ARG KNOT_BRANCH=3.1
 ENV DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /root
@@ -11,24 +11,19 @@ CMD ["/bin/bash"]
 
 # generic cleanup
 RUN apt-get update -qq
-# TODO: run upgrade once buster reaches a stable release
-# RUN apt-get upgrade -y -qqq
 
 # Knot and Knot Resolver dependencies
 RUN apt-get install -y -qqq git make cmake pkg-config meson \
 	build-essential bsdmainutils libtool autoconf libcmocka-dev \
 	liburcu-dev libgnutls28-dev libedit-dev liblmdb-dev libcap-ng-dev libsystemd-dev \
-	libelf-dev libmnl-dev libidn11-dev libuv1-dev \
+	libelf-dev libmnl-dev libidn11-dev libuv1-dev libjemalloc-dev \
 	libluajit-5.1-dev lua-http libssl-dev libnghttp2-dev
 
-# Build and testing deps for Resolver's dnstap module (go stuff is just for testing)
+# Build and testing deps for Resolver's dnstap module
 RUN apt-get install -y -qqq \
 	protobuf-c-compiler libprotobuf-c-dev libfstrm-dev \
 	golang-any
 COPY ./tests/dnstap /root/tests/dnstap
-WORKDIR /root/tests/dnstap/src/dnstap-test
-RUN go get .
-WORKDIR /root
 
 # documentation dependencies
 RUN apt-get install -y -qqq doxygen python3-sphinx python3-breathe python3-sphinx-rtd-theme
@@ -40,9 +35,12 @@ RUN apt-get install -y -qqq python3-pip wget augeas-tools
 RUN pip3 install --upgrade pip
 RUN pip3 install pylint
 RUN pip3 install pep8
-RUN pip3 install pytest-xdist
+# FIXME replace with dnspython >= 2.2.0 once released
+RUN pip3 install git+https://github.com/bwelling/dnspython.git@72348d4698a8f8b209fbdf9e72738904ad31b930
 # tests/pytest dependencies: skip over broken versions
-RUN pip3 install 'dnspython != 2.0.0' 'jinja2 == 2.11.3' 'pytest != 6.0.0' pytest-html pytest-xdist
+RUN pip3 install jinja2 'pytest != 6.0.0' pytest-html pytest-xdist pytest-forked
+# apkg for packaging
+RUN pip3 install apkg
 
 # packet capture tools for Deckard
 RUN apt-get install --no-install-suggests --no-install-recommends -y -qqq tcpdump wireshark-common
@@ -61,7 +59,7 @@ RUN git clone --depth=1 --branch=$KNOT_BRANCH https://gitlab.nic.cz/knot/knot-dn
 WORKDIR /tmp/knot
 RUN pwd
 RUN autoreconf -if
-RUN ./configure --prefix=/usr --enable-xdp=yes
+RUN ./configure --prefix=/usr --enable-xdp=yes --disable-documentation
 RUN CFLAGS="-g" make
 RUN make install
 RUN ldconfig
@@ -102,6 +100,9 @@ RUN printf 'options {\n directory "/var/cache/bind";\n listen-on port 53533 { 12
 # PowerDNS Recursor for Deckard CI
 RUN apt-get install pdns-recursor -y -qqq
 
+# dnsdist for Deckard CI
+RUN apt-get install dnsdist -y -qqq
+
 # code coverage
 RUN apt-get install -y -qqq lcov
 RUN luarocks --lua-version 5.1 install luacov
@@ -119,14 +120,15 @@ RUN apt-get install -y osc
 RUN apt-get install -y curl
 
 # configure knot-resolver-testing OBS repo for dependencies missing in Debian
-RUN echo 'deb http://download.opensuse.org/repositories/home:/CZ-NIC:/knot-resolver-testing/Debian_10/ /' > /etc/apt/sources.list.d/knot-resolver-testing.list
-RUN wget -nv https://download.opensuse.org/repositories/home:CZ-NIC:knot-resolver-testing/Debian_10/Release.key -O Release.key
+RUN echo 'deb http://download.opensuse.org/repositories/home:/CZ-NIC:/knot-resolver-testing/Debian_11/ /' > /etc/apt/sources.list.d/knot-resolver-testing.list
+RUN wget -nv https://download.opensuse.org/repositories/home:CZ-NIC:knot-resolver-testing/Debian_11/Release.key -O Release.key
 RUN APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add Release.key
 RUN rm Release.key
 RUN apt-get update -qq
 
 # packages from our knot-resolver-testing repo
-RUN apt-get install -y -qqq lua-http lua-psl
+RUN apt-get update
+RUN apt-get install -y -qqq lua-psl
 
 # en_US.UTF-8 locale for scripts.update-authors.sh
 RUN apt-get install -y -qqq locales
@@ -135,12 +137,7 @@ RUN locale-gen
 
 # SonarCloud scanner
 RUN wget -O /var/opt/wrapper.zip https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
-RUN wget -O /var/opt/scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.4.0.2170-linux.zip
+RUN wget -O /var/opt/scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
 RUN unzip -d /var/opt /var/opt/wrapper.zip
 RUN unzip -d /var/opt /var/opt/scanner.zip
-ENV PATH "$PATH:/var/opt/build-wrapper-linux-x86:/var/opt/sonar-scanner-4.4.0.2170-linux/bin"
-
-# let's get newer meson from backports
-RUN echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/backports.list
-RUN apt-get update -qq
-RUN apt-get -t buster-backports install -y -qqq meson
+ENV PATH "$PATH:/var/opt/build-wrapper-linux-x86:/var/opt/sonar-scanner-5.0.1.3006-linux/bin"

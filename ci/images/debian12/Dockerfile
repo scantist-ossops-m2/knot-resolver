@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 
-FROM debian:bullseye
+FROM debian:bookworm
 MAINTAINER Knot Resolver <knot-resolver@labs.nic.cz>
 # >= 3.0 needed because of --enable-xdp=yes
 ARG KNOT_BRANCH=3.1
@@ -17,7 +17,7 @@ RUN apt-get install -y -qqq git make cmake pkg-config meson \
 	build-essential bsdmainutils libtool autoconf libcmocka-dev \
 	liburcu-dev libgnutls28-dev libedit-dev liblmdb-dev libcap-ng-dev libsystemd-dev \
 	libelf-dev libmnl-dev libidn11-dev libuv1-dev libjemalloc-dev \
-	libluajit-5.1-dev lua-http libssl-dev libnghttp2-dev
+	libluajit-5.1-dev lua-http libssl-dev libnghttp2-dev libbpf-dev libxdp-dev
 
 # Build and testing deps for Resolver's dnstap module (go stuff is just for testing)
 RUN apt-get install -y -qqq \
@@ -34,7 +34,11 @@ RUN apt-get install -y -qqq doxygen python3-sphinx python3-breathe python3-sphin
 # Python packages required for Deckard CI
 # Python: grab latest versions from PyPi
 # (Augeas binding in Debian packages are slow and buggy)
-RUN apt-get install -y -qqq python3-pip wget augeas-tools
+RUN apt-get install -y -qqq python3-pip python3-venv wget augeas-tools
+ENV VENV="/root/venv"
+RUN python3 -m venv "$VENV"
+ENV PATH="$VENV/bin:$PATH"
+
 RUN pip3 install --upgrade pip
 RUN pip3 install pylint
 RUN pip3 install pep8
@@ -62,7 +66,7 @@ RUN git clone --depth=1 --branch=$KNOT_BRANCH https://gitlab.nic.cz/knot/knot-dn
 WORKDIR /tmp/knot
 RUN pwd
 RUN autoreconf -if
-RUN ./configure --prefix=/usr --enable-xdp=yes
+RUN ./configure --prefix=/usr --enable-xdp=yes --disable-documentation
 RUN CFLAGS="-g" make
 RUN make install
 RUN ldconfig
