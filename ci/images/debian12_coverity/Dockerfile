@@ -18,10 +18,8 @@ RUN apt-get install -y -qqq git make cmake pkg-config meson \
 	build-essential bsdmainutils libtool autoconf libcmocka-dev \
 	liburcu-dev libgnutls28-dev libedit-dev liblmdb-dev libcap-ng-dev libsystemd-dev \
 	libelf-dev libmnl-dev libidn11-dev libuv1-dev \
-	libluajit-5.1-dev lua-http libssl-dev libnghttp2-dev libbpf-dev libxdp-dev
-
-# LuaJIT binary for stand-alone scripting
-RUN apt-get install -y -qqq luajit
+	libluajit-5.1-dev lua-http libssl-dev libnghttp2-dev libbpf-dev libxdp-dev \
+	luajit
 
 # build and install latest version of Knot DNS
 RUN git clone --depth=1 --branch=$KNOT_BRANCH https://gitlab.nic.cz/knot/knot-dns.git /tmp/knot
