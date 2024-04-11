@@ -16,7 +16,7 @@ RUN apt-get install --no-install-suggests --no-install-recommends -y -qqq \
 	\
 	`# Knot DNS and Knot Resolver` \
 	git make cmake pkg-config meson \
-	build-essential bsdmainutils libtool autoconf libcmocka-dev \
+	build-essential bsdmainutils libtool autoconf automake libcmocka-dev \
 	liburcu-dev libgnutls28-dev libedit-dev liblmdb-dev libcap-ng-dev libsystemd-dev \
 	libelf-dev libmnl-dev libidn11-dev libuv1-dev libjemalloc-dev \
 	libluajit-5.1-dev lua-http libssl-dev libnghttp2-dev libbpf-dev libxdp-dev \
