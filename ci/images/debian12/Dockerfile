@@ -29,7 +29,7 @@ RUN go get .
 WORKDIR /root
 
 # documentation dependencies
-RUN apt-get install -y -qqq doxygen python3-sphinx python3-breathe python3-sphinx-rtd-theme
+RUN apt-get install -y -qqq doxygen texinfo python3-sphinx python3-breathe python3-sphinx-rtd-theme
 
 # Python packages required for Deckard CI
 # Python: grab latest versions from PyPi
