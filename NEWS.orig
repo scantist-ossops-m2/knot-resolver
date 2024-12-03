@@ -1,10 +1,6 @@
 Knot Resolver 5.4.1 (2021-08-19)
 ================================
 
-Security
---------
-- fix CPU-expensive DoS by malicious domains - CVE-2022-40188
-
 Improvements
 ------------
 - docker: base image on Debian 11 (!1203)
