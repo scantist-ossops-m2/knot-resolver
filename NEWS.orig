@@ -1,10 +1,6 @@
 Knot Resolver 5.5.1 (2022-06-14)
 ================================
 
-Security
---------
-- fix CPU-expensive DoS by malicious domains - CVE-2022-40188
-
 Improvements
 ------------
 - daemon/tls: disable TLS resumption via tickets for TLS <= 1.2 (#742, !1295)
