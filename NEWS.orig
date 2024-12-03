@@ -9,10 +9,6 @@ Bugfixes
 Knot Resolver 5.4.3 (2021-12-01)
 ================================
 
-Security
---------
-- fix CPU-expensive DoS by malicious domains - CVE-2022-40188
-
 Improvements
 ------------
 - lua: add kres.parse_rdata() to parse RDATA from string to wire format (!1233)
