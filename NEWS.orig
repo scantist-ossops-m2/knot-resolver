@@ -1,10 +1,6 @@
 Knot Resolver 5.5.0 (2022-03-15)
 ================================
 
-Security
---------
-- fix CPU-expensive DoS by malicious domains - CVE-2022-40188
-
 Improvements
 ------------
 - extended_errors: module for extended DNS error support, RFC8914 (!1234)
