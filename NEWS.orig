@@ -1,10 +1,6 @@
 Knot Resolver 5.4.2 (2021-10-13)
 ================================
 
-Security
---------
-- fix CPU-expensive DoS by malicious domains - CVE-2022-40188
-
 Improvements
 ------------
 - dns64 module: also map the reverse (PTR) subtree (#478, !1201)
